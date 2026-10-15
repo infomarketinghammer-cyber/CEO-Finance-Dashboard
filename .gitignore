@@ -1,0 +1,33 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+*.tsbuildinfo
+
+# local configuration — never commit real secrets
+.env
+.env.local
+.env.*.local
+
+# local database — financial data must not enter version control
+server/data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# uploaded workbooks — these are customer financial documents
+server/storage/
+
+# generated test fixtures
+server/tests/fixtures/workbooks/
+
+# logs and OS noise
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# editors
+.vscode/
+.idea/

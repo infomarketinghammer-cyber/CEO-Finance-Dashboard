@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-page text-ink font-sans antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  /* Financial figures line up only when digits share a width. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-brand/40 ring-offset-1 ring-offset-page;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-line-strong rounded-full border-2 border-solid border-transparent bg-clip-content;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-ink-subtle bg-clip-content;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-surface border border-line rounded-card shadow-card;
+  }
+
+  .card-interactive {
+    @apply card transition-shadow duration-150 hover:shadow-card-hover;
+  }
+
+  .label-text {
+    @apply text-2xs font-semibold uppercase tracking-wider text-ink-muted;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden bg-line/60 rounded;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1.4s infinite;
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* A sticky table header that survives horizontal scroll. */
+  .table-sticky thead th {
+    @apply sticky top-0 z-10 bg-navy-50/80 backdrop-blur-sm;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}
