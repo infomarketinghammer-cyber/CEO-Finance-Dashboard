@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { createApp } from './app.js';
 import { env } from './config/env.js';
-import { db, closeDb } from './db/index.js';
+import { db, closeDb, normalizeMigrationNames } from './db/index.js';
 import { logger } from './lib/logger.js';
 
 async function main() {
@@ -12,6 +12,13 @@ async function main() {
   // Refuse to start on an un-migrated database rather than failing later on the
   // first query a user happens to make.
   try {
+    // Lets a database migrated by the TypeScript sources be served by the
+    // compiled build, and vice versa. No-op once normalised.
+    const renamed = await normalizeMigrationNames();
+    if (renamed > 0) {
+      logger.info(`Normalised ${renamed} migration record(s) to extensionless names.`);
+    }
+
     const [completed, pending] = await db.migrate.list();
     if (pending.length > 0) {
       logger.error(

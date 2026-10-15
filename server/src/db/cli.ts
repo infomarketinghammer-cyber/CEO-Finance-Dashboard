@@ -1,7 +1,7 @@
 /**
  * Database CLI:  npm run migrate | rollback | seed
  */
-import { db } from './index.js';
+import { db, normalizeMigrationNames } from './index.js';
 import { env } from '../config/env.js';
 
 const command = process.argv[2];
@@ -9,6 +9,11 @@ const command = process.argv[2];
 async function main() {
   const target = env.db.client === 'pg' ? `postgres://${env.db.pg.host}:${env.db.pg.port}/${env.db.pg.database}` : env.db.sqliteFile;
   console.log(`DHYEYA database (${env.db.client}) → ${target}`);
+
+  // Keeps a database usable by both the TypeScript sources and the compiled
+  // build. No-op after the first run.
+  const renamed = await normalizeMigrationNames();
+  if (renamed > 0) console.log(`Normalised ${renamed} migration record(s) to extensionless names.`);
 
   switch (command) {
     case 'migrate': {
