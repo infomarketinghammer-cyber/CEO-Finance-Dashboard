@@ -1,0 +1,17 @@
+**/node_modules
+**/dist
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+**/*.log
+server/data
+server/storage
+server/tests
+client/dist
+demo-data
+docs
+*.md
+Dockerfile
+docker-compose*.yml

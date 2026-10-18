@@ -1,0 +1,25 @@
+# Production-style deployment on SQLite (the default; no database server needed).
+#   cp .env.example .env     # then fill in JWT_SECRET and BOOTSTRAP_ADMIN_PASSWORD
+#   docker compose up -d --build
+# For PostgreSQL add the override:
+#   docker compose -f docker-compose.yml -f docker-compose.postgres.yml up -d --build
+services:
+  dhyeya:
+    build: .
+    image: dhyeya:latest
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-4000}:4000"
+    environment:
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env (see .env.example)}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@dhyeya.local}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:?Set BOOTSTRAP_ADMIN_PASSWORD in .env}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:4000}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-12h}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    volumes:
+      - dhyeya-data:/data
+
+volumes:
+  dhyeya-data:

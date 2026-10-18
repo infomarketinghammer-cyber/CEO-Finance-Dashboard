@@ -83,7 +83,8 @@ NODE_ENV=production node dist/index.js
 ```
 
 In production the server also serves `client/dist`, so the whole product runs on
-one port.
+one port. A Dockerfile and Compose files are included — see
+**[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.
 
 ---
 

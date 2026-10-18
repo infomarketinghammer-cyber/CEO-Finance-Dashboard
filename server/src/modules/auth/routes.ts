@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { db, dialect } from '../../db/index.js';
 import { asyncHandler } from '../../middleware/error.js';
 import { authenticate, signToken } from '../../middleware/auth.js';
+import { loginLimiter } from '../../middleware/loginLimiter.js';
 import { badRequest, unauthorized, forbidden } from '../../lib/errors.js';
 import { capabilitiesFor, ROLE_LABELS, type Role } from './permissions.js';
 import { recordAudit } from '../audit/service.js';
@@ -19,6 +20,7 @@ const loginSchema = z.object({
 
 authRouter.post(
   '/login',
+  loginLimiter,
   asyncHandler(async (req, res) => {
     const { email, password } = loginSchema.parse(req.body);
     const normalised = email.toLowerCase().trim();
