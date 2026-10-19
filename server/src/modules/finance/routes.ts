@@ -405,7 +405,7 @@ financeRouter.get(
       benchmarks,
       benchmarkNote:
         Object.keys(benchmarks).length === 0
-          ? 'No industry benchmarks have been configured. Benchmarks are entered manually in Settings — DHYEYA does not supply industry data.'
+          ? 'No industry benchmarks have been configured. Benchmarks are entered manually in Settings — ArthSetu does not supply industry data.'
           : 'Benchmarks shown were entered manually by your organisation, not sourced from an industry database.',
       periodMeta: resolved,
       generatedAt: nowIso(),

@@ -24,7 +24,7 @@ const upload = multer({
 });
 
 /**
- * Reconciliation compares the balances DHYEYA computed against an independent
+ * Reconciliation compares the balances ArthSetu computed against an independent
  * reference — typically a trial balance exported straight from the accounting
  * system. Without such a reference there is nothing to reconcile against, and the
  * module says "Reference data not provided" rather than reporting a successful

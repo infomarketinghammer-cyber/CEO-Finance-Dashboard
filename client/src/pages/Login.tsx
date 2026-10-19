@@ -98,7 +98,7 @@ export function LoginPage() {
         <div className="relative max-w-md">
           <h2 className="text-2xl font-semibold leading-snug">Accounting data, turned into financial information.</h2>
           <p className="text-sm text-white/70 mt-3.5 leading-relaxed">
-            Import your Excel exports and DHYEYA validates them, maps your ledgers to standard categories, and produces statements you can
+            Import your Excel exports and ArthSetu validates them, maps your ledgers to standard categories, and produces statements you can
             trace back to the underlying vouchers.
           </p>
 

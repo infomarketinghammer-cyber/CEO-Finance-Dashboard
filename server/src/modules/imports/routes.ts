@@ -70,7 +70,7 @@ importsRouter.get(
     const category = getCategory(req.params.categoryKey);
     const buffer = await buildTemplate(category.key);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename="DHYEYA-template-${category.key}.xlsx"`);
+    res.setHeader('Content-Disposition', `attachment; filename="ArthSetu-template-${category.key}.xlsx"`);
     res.send(buffer);
   }),
 );
@@ -562,7 +562,7 @@ importsRouter.get(
     });
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', `attachment; filename="DHYEYA-rejected-rows-${batch.id.slice(0, 8)}.xlsx"`);
+    res.setHeader('Content-Disposition', `attachment; filename="ArthSetu-rejected-rows-${batch.id.slice(0, 8)}.xlsx"`);
     res.send(buffer);
   }),
 );
@@ -648,11 +648,11 @@ function matchesTemplate(categoryKey: string, headers: string[]): { matches: boo
   const requiredPresent = requiredLabels.every((r) => actual.includes(r));
 
   if (requiredPresent && overlap >= Math.min(expected.length, 3)) {
-    return { matches: true, detail: 'This file matches the DHYEYA template for this import type. The suggested mapping should need no changes.' };
+    return { matches: true, detail: 'This file matches the ArthSetu template for this import type. The suggested mapping should need no changes.' };
   }
   return {
     matches: false,
-    detail: `This file does not use the DHYEYA template layout, which is fine — ${overlap} of ${expected.length} column headings were recognised and you can map the rest yourself below.`,
+    detail: `This file does not use the ArthSetu template layout, which is fine — ${overlap} of ${expected.length} column headings were recognised and you can map the rest yourself below.`,
   };
 }
 

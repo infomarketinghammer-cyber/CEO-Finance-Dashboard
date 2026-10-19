@@ -328,7 +328,7 @@ export function ImportPage() {
     <>
       <PageHeader
         title="Excel Import Center"
-        description="Upload workbooks exported from your accounting system, map their columns to DHYEYA's fields, review what will change, and import."
+        description="Upload workbooks exported from your accounting system, map their columns to ArthSetu's fields, review what will change, and import."
         actions={
           step !== 'category' && (
             <Button size="sm" icon={<RotateCcw className="w-3.5 h-3.5" />} onClick={reset}>
@@ -466,7 +466,7 @@ export function ImportPage() {
 
           <Explainer
             className="mt-5"
-            what="Reads an Excel or CSV workbook, lets you match its columns to DHYEYA's fields, checks every row, and stores the valid ones."
+            what="Reads an Excel or CSV workbook, lets you match its columns to ArthSetu's fields, checks every row, and stores the valid ones."
             why="Your export layout is yours. Rather than forcing one fixed spreadsheet format, this maps whatever columns you have."
             needs="An .xlsx, .xls or .csv file with a heading row. Column order does not matter and headings need not match ours."
             next="Pick what kind of data the file holds, upload it, confirm the suggested column mapping, then review the validation report before importing."
@@ -699,7 +699,7 @@ function UploadStep({
           <Button
             size="sm"
             icon={<Download className="w-3.5 h-3.5" />}
-            onClick={() => api.download(`/imports/templates/${category.key}`, undefined, `DHYEYA-template-${category.key}.xlsx`)}
+            onClick={() => api.download(`/imports/templates/${category.key}`, undefined, `ArthSetu-template-${category.key}.xlsx`)}
           >
             Download template
           </Button>
@@ -814,7 +814,7 @@ function MappingStep({
       {/* ------------------------------------------------------ the mapping */}
       <Card>
         <CardHeader
-          title="Match your columns to DHYEYA's fields"
+          title="Match your columns to ArthSetu's fields"
           description="Suggestions come from your column headings and the values beneath them. Review each one — a wrong mapping accepted here is hard to spot later."
         />
 
@@ -1556,7 +1556,7 @@ function TemplateList({ categories, loading }: { categories: ImportCategory[]; l
               size="sm"
               className="mt-3 self-start"
               icon={<Download className="w-3.5 h-3.5" />}
-              onClick={() => api.download(`/imports/templates/${c.key}`, undefined, `DHYEYA-template-${c.key}.xlsx`)}
+              onClick={() => api.download(`/imports/templates/${c.key}`, undefined, `ArthSetu-template-${c.key}.xlsx`)}
             >
               Download
             </Button>

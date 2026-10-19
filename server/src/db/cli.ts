@@ -8,7 +8,7 @@ const command = process.argv[2];
 
 async function main() {
   const target = env.db.client === 'pg' ? `postgres://${env.db.pg.host}:${env.db.pg.port}/${env.db.pg.database}` : env.db.sqliteFile;
-  console.log(`DHYEYA database (${env.db.client}) → ${target}`);
+  console.log(`ArthSetu database (${env.db.client}) → ${target}`);
 
   // Keeps a database usable by both the TypeScript sources and the compiled
   // build. No-op after the first run.

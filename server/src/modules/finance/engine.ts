@@ -5,7 +5,7 @@ import { SECTION_LABELS, type Statement } from '../mapping/categories.js';
 /**
  * The single source of financial truth.
  *
- * Every KPI card, chart, statement, ratio and export in DHYEYA is derived from the
+ * Every KPI card, chart, statement, ratio and export in ArthSetu is derived from the
  * functions in this file. Nothing recomputes a total of its own, so a figure cannot
  * disagree with itself between the dashboard and the Profit & Loss.
  *

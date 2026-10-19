@@ -229,7 +229,7 @@ export async function buildPdf(meta: ReportMeta, sections: ReportSection[]): Pro
 
 export async function buildExcel(meta: ReportMeta, sections: ReportSection[]): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'DHYEYA — Business and Executive Dashboard';
+  wb.creator = 'ArthSetu - CEO Finance Dashboard';
   wb.created = new Date();
 
   // ---- cover sheet carrying the report context ----
@@ -239,7 +239,7 @@ export async function buildExcel(meta: ReportMeta, sections: ReportSection[]): P
     { key: 'v', width: 80 },
   ];
 
-  const title = info.addRow({ k: 'DHYEYA', v: meta.reportTitle });
+  const title = info.addRow({ k: 'ArthSetu', v: meta.reportTitle });
   title.getCell(1).font = { bold: true, size: 14, color: { argb: argb(BRAND.navy) } };
   title.getCell(2).font = { bold: true, size: 12, color: { argb: argb(BRAND.text) } };
   info.addRow({});

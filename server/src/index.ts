@@ -36,7 +36,7 @@ async function main() {
   const app = createApp();
 
   const server = app.listen(env.port, () => {
-    logger.info(`DHYEYA API listening on http://localhost:${env.port}`, {
+    logger.info(`ArthSetu API listening on http://localhost:${env.port}`, {
       env: env.nodeEnv,
       database: env.db.client,
       dataSource: 'excel_import',

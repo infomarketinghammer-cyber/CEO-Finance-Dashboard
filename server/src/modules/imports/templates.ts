@@ -20,7 +20,7 @@ const BRAND = {
 export async function buildTemplate(categoryKey: string): Promise<Buffer> {
   const category = getCategory(categoryKey);
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'DHYEYA — Business and Executive Dashboard';
+  wb.creator = 'ArthSetu - CEO Finance Dashboard';
   wb.created = new Date();
 
   // ---------------------------------------------------------------- data sheet
@@ -137,7 +137,7 @@ export async function buildRejectionReport(
   rejections: { rowNumber: number; raw: Record<string, unknown>; errors: { message: string }[] }[],
 ): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'DHYEYA — Business and Executive Dashboard';
+  wb.creator = 'ArthSetu - CEO Finance Dashboard';
   const sheet = wb.addWorksheet('Rejected rows');
 
   const title = sheet.addRow([`Rejected rows — ${categoryLabel}`]);

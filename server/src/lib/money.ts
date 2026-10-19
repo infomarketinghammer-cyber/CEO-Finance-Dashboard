@@ -1,7 +1,7 @@
 /**
  * Decimal-safe money handling.
  *
- * Every monetary amount in DHYEYA is stored and transported as an integer number
+ * Every monetary amount in ArthSetu is stored and transported as an integer number
  * of MINOR UNITS (paise for INR, cents for USD). Floating point is never used for
  * storage or accumulation. Conversion to a float happens only at the presentation
  * boundary, and even then the API ships the integer alongside it.

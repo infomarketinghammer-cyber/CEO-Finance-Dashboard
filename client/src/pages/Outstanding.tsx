@@ -251,7 +251,7 @@ export function OutstandingPage({ table }: { table: 'receivables' | 'payables' }
                             {d.dueDate ? (
                               <span className="text-ink-muted">{formatDate(d.dueDate)}</span>
                             ) : (
-                              <Tooltip content="The imported data supplied no due date. DHYEYA never infers one.">
+                              <Tooltip content="The imported data supplied no due date. ArthSetu never infers one.">
                                 <span className="text-warning">Not supplied</span>
                               </Tooltip>
                             )}

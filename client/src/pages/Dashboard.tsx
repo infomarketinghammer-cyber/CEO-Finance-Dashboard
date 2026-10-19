@@ -76,7 +76,7 @@ export function DashboardPage() {
         <EmptyState
           icon={<Building2 className="w-5 h-5" />}
           title="Create your first company"
-          description="DHYEYA keeps each company's financial data, mappings and reports entirely separate. Set one up to begin."
+          description="ArthSetu keeps each company's financial data, mappings and reports entirely separate. Set one up to begin."
           action={
             can('companies.manage') ? (
               <Button variant="primary" icon={<Building2 className="w-4 h-4" />} onClick={() => navigate('/companies')}>

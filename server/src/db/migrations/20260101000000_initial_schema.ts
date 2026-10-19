@@ -1,7 +1,7 @@
 import type { Knex } from 'knex';
 
 /**
- * DHYEYA initial schema.
+ * ArthSetu initial schema.
  *
  * Portability notes:
  *  - Identifiers are text UUIDs generated in application code, so no engine-specific

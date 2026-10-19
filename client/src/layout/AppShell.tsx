@@ -45,7 +45,7 @@ export function AppShell() {
             <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-1.5 text-xs text-ink-muted no-print">
               <Link to="/" className="inline-flex items-center gap-1 hover:text-ink transition-colors">
                 <Home className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{company?.name ?? 'DHYEYA'}</span>
+                <span className="hidden sm:inline">{company?.name ?? 'ArthSetu'}</span>
               </Link>
               {current && (
                 <>
@@ -70,7 +70,7 @@ export function AppShell() {
         <footer className="px-5 py-3.5 border-t border-line text-2xs text-ink-subtle no-print">
           <div className="max-w-[1560px] mx-auto flex flex-wrap items-center justify-between gap-2">
             <span>
-              DHYEYA — Business and Executive Dashboard. Management reports produced from imported accounting data; not audited financial
+              ArthSetu - CEO Finance Dashboard. Management reports produced from imported accounting data; not audited financial
               statements.
             </span>
             <span>Data source: Excel Import</span>

@@ -117,7 +117,7 @@ function AppRoutes() {
             <Card>
               <EmptyState
                 title="Page not found"
-                description="That address does not match a module in DHYEYA."
+                description="That address does not match a module in ArthSetu."
                 action={
                   <Button variant="primary" onClick={() => (window.location.href = '/')}>
                     Back to the dashboard

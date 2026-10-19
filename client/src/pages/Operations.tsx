@@ -552,7 +552,7 @@ export function ReconciliationPage() {
     <>
       <PageHeader
         title="Data Reconciliation"
-        description="Compares the balances DHYEYA calculated against an independent reference — usually a trial balance straight from your accounting system."
+        description="Compares the balances ArthSetu calculated against an independent reference — usually a trial balance straight from your accounting system."
       />
 
       <Card className="mb-4">
@@ -694,7 +694,7 @@ export function ReconciliationPage() {
 
       <Explainer
         className="mt-5"
-        what="Compares each ledger balance DHYEYA calculated with the same ledger in a reference report you supply."
+        what="Compares each ledger balance ArthSetu calculated with the same ledger in a reference report you supply."
         why="It is the only way to prove the imported data is complete. Without a reference, nothing has been reconciled — and this module says so rather than implying otherwise."
         needs="A trial balance or ledger-balance export with a ledger-name column and either a balance column or separate debit and credit columns."
         next="A ledger present in the reference but missing from the import usually means a category of records has not been imported yet."

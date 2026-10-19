@@ -39,7 +39,7 @@ export interface RatioResult {
   /** A methodological caveat that applies even when the ratio computed. */
   limitation?: string;
   explanation: string;
-  /** True for ratios defined by the organisation rather than shipped with DHYEYA. */
+  /** True for ratios defined by the organisation rather than shipped with ArthSetu. */
   isCustom?: boolean;
 }
 

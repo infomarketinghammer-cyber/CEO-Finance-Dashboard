@@ -88,7 +88,7 @@ reportsRouter.get(
     const format = req.params.format as 'pdf' | 'xlsx';
 
     const definition = REPORT_TYPES.find((r) => r.key === reportKey);
-    if (!definition) throw badRequest(`"${reportKey}" is not a report DHYEYA produces.`);
+    if (!definition) throw badRequest(`"${reportKey}" is not a report ArthSetu produces.`);
     if (!(definition.formats as readonly string[]).includes(format)) {
       throw badRequest(`${definition.label} is not available as a ${format.toUpperCase()}. Available: ${definition.formats.join(', ')}.`);
     }
@@ -716,7 +716,7 @@ reportsRouter.get(
     });
 
     const safeCompany = company.name.replace(/[^a-zA-Z0-9]/g, '-').slice(0, 40);
-    const fileName = `DHYEYA-${definition.label.replace(/[^a-zA-Z0-9]/g, '-')}-${safeCompany}-${today()}.${format}`;
+    const fileName = `ArthSetu-${definition.label.replace(/[^a-zA-Z0-9]/g, '-')}-${safeCompany}-${today()}.${format}`;
 
     res.setHeader(
       'Content-Type',

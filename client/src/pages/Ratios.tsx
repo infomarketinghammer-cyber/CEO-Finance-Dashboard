@@ -217,7 +217,7 @@ export function RatiosPage() {
               <EmptyState
                 icon={<Wand2 className="w-5 h-5" />}
                 title="No custom ratios yet"
-                description="Build a ratio from the financial inputs DHYEYA already calculates — useful when your board or lender tracks a measure that is not one of the standard ones."
+                description="Build a ratio from the financial inputs ArthSetu already calculates — useful when your board or lender tracks a measure that is not one of the standard ones."
                 action={
                   can('settings.manage') ? (
                     <Button variant="primary" onClick={() => openBuilder()}>
@@ -386,7 +386,7 @@ function RatioBuilder({
       onClose={onClose}
       size="xl"
       title={existing ? `Edit "${existing.label}"` : 'Build a custom ratio'}
-      description="Combine the financial inputs DHYEYA already calculates. The result sits alongside the standard ratios and uses exactly the same figures as your statements."
+      description="Combine the financial inputs ArthSetu already calculates. The result sits alongside the standard ratios and uses exactly the same figures as your statements."
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
