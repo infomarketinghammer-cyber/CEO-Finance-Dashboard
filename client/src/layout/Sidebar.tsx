@@ -25,7 +25,7 @@ export function Sidebar({
       {/* ---- logo ---- */}
       <div className={cx('flex items-center border-b border-line shrink-0', collapsed ? 'justify-center h-[61px] px-2' : 'justify-between h-[61px] px-4')}>
         {collapsed ? (
-          <Tooltip content="DHYEYA — Business and Executive Dashboard" side="right">
+          <Tooltip content="ArthSetu — CEO Finance Dashboard" side="right">
             <LogoMark size={30} />
           </Tooltip>
         ) : (

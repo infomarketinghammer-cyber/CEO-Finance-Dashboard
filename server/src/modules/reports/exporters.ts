@@ -23,11 +23,11 @@ export const BRAND = {
 
 const argb = (hex: string) => `FF${hex.replace('#', '').toUpperCase()}`;
 
-/** Resolves the DHYEYA logo asset, which is shared with the web client. */
+/** Resolves the ArthSetu logo asset, which is shared with the web client. */
 function logoPath(): string | null {
   const candidates = [
-    path.resolve(__dirname, '../../../assets/dhyeya-logo.jpeg'),
-    path.resolve(__dirname, '../../../../client/public/dhyeya-logo.jpeg'),
+    path.resolve(__dirname, '../../../assets/arthsetu-logo.png'),
+    path.resolve(__dirname, '../../../../client/public/arthsetu-logo.png'),
   ];
   for (const c of candidates) {
     if (fs.existsSync(c)) return c;
@@ -89,8 +89,8 @@ export async function buildPdf(meta: ReportMeta, sections: ReportSection[]): Pro
     }
 
     const textX = logo ? 104 : 40;
-    doc.fillColor(BRAND.navy).fontSize(18).font('Helvetica-Bold').text('DHYEYA', textX, 40);
-    doc.fillColor(BRAND.muted).fontSize(8).font('Helvetica').text('BUSINESS AND EXECUTIVE DASHBOARD', textX, 62, { characterSpacing: 1.2 });
+    doc.fillColor(BRAND.navy).fontSize(18).font('Helvetica-Bold').text('ArthSetu', textX, 40);
+    doc.fillColor(BRAND.muted).fontSize(8).font('Helvetica').text('CEO FINANCE DASHBOARD', textX, 62, { characterSpacing: 1.2 });
 
     doc.fillColor(BRAND.text).fontSize(15).font('Helvetica-Bold').text(meta.reportTitle, 40, 100, { width: pageWidth });
     doc.fillColor(BRAND.navy).fontSize(11).font('Helvetica-Bold').text(meta.companyName, 40, 122, { width: pageWidth });
