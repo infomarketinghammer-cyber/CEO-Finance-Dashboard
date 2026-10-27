@@ -106,7 +106,7 @@ export const NAV_GROUPS: NavGroup[] = [
         label: 'Cash Flow Forecast',
         icon: TrendingUp,
         capability: 'forecast.view',
-        description: 'Rule-based 30/60/90-day projection',
+        description: 'Learned 30/60/90-day projection',
       },
     ],
   },

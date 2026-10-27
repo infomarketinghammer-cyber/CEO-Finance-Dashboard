@@ -87,7 +87,7 @@ financeRouter.get(
       try {
         const f = await computeForecast(req.companyId!, asOf, 90, { financialYearStart: resolved.financialYearStart });
         forecastClosing = f.scenarios.expected.closingBalance;
-        forecastNote = `Rule-based 90-day projection, expected case. Data sufficiency: ${f.dataSufficiency.level}.`;
+        forecastNote = `${f.learning ? 'Learned' : 'Rule-based'} 90-day projection, expected case. Data sufficiency: ${f.dataSufficiency.level}.`;
       } catch {
         forecastNote = 'The forecast could not be produced from the current data.';
       }

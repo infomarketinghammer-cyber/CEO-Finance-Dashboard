@@ -29,7 +29,7 @@ export const REPORT_TYPES = [
   { key: 'payables_ageing', label: 'Payables Ageing', description: 'Outstanding supplier bills by ageing bucket.', formats: ['pdf', 'xlsx'] },
   { key: 'expense_analysis', label: 'Expense Analysis', description: 'Expenses by category and vendor across the period.', formats: ['pdf', 'xlsx'] },
   { key: 'budget_variance', label: 'Budget Variance', description: 'Budgeted against actual spend, with variance and utilisation.', formats: ['pdf', 'xlsx'] },
-  { key: 'cash_flow_forecast', label: 'Cash Flow Forecast', description: 'Rule-based projection with best, expected and worst cases.', formats: ['pdf', 'xlsx'] },
+  { key: 'cash_flow_forecast', label: 'Cash Flow Forecast', description: 'Projection with best, expected and worst cases, learned from your payment history where there is enough of it.', formats: ['pdf', 'xlsx'] },
   { key: 'financial_ratios', label: 'Financial Ratios', description: 'Every ratio with its formula, inputs and limitations.', formats: ['pdf', 'xlsx'] },
   { key: 'import_history', label: 'Import History', description: 'Every import with record counts, status and warnings.', formats: ['xlsx'] },
   { key: 'data_reconciliation', label: 'Data Reconciliation', description: 'Imported balances against the most recent reference report.', formats: ['xlsx'] },
@@ -510,7 +510,9 @@ reportsRouter.get(
         const f = await computeForecast(req.companyId!, asOf, horizon, { financialYearStart: resolved.financialYearStart });
         meta.asOfLabel = formatDisplayDate(asOf);
         meta.warnings = [
-          'This is a rule-based projection built from imported records. It is not a statistical or machine-learned prediction.',
+          f.learning
+            ? `Statistical projection learned from imported transactions (${f.learning.simulations} simulations). Expected is the median outcome; Best and Worst are the 90th and 10th percentiles. It is an estimate, not a guarantee.`
+            : 'This is a rule-based projection built from imported records. It is not a statistical or machine-learned prediction.',
           ...(f.openingCashAvailable ? [] : ['No ledger is categorised as Cash and Bank, so the projection starts from zero.']),
         ];
 

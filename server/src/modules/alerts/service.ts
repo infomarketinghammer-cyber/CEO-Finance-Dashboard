@@ -184,7 +184,7 @@ export async function refreshAlerts(companyId: string): Promise<{ created: numbe
           type: 'projected_shortfall',
           severity: 'critical',
           title: 'Projected cash shortfall',
-          message: `On the expected case, the projected balance falls below ${forecast.minCashThreshold !== null ? 'your minimum' : 'zero'} on ${expected.shortfallDate}, reaching ${fmt(expected.lowestBalance)}. This is a rule-based projection from imported records, not a prediction.`,
+          message: `On the expected case, the projected balance falls below ${forecast.minCashThreshold !== null ? 'your minimum' : 'zero'} on ${expected.shortfallDate}, reaching ${fmt(expected.lowestBalance)}. This is ${forecast.learning ? 'a statistical estimate learned from imported transactions' : 'a rule-based projection from imported records'}, not a guarantee.`,
           amount: expected.lowestBalance,
           dedupeKey: `projected_shortfall:${expected.shortfallDate}`,
           link: '/cash-flow-forecast',

@@ -3,14 +3,20 @@ import { add, sub, mulRatio, type Minor } from '../../lib/money.js';
 import { addDays, addMonths, daysBetween } from '../../lib/dates.js';
 import { loadBalances, sumSections } from './engine.js';
 import { readJson } from '../../lib/json.js';
+import { runMlForecast, type LearningSummary, type MlOutcome } from './mlForecast.js';
 
 /**
  * Cash flow forecast.
  *
- * This is a RULE-BASED projection, not a machine-learned prediction, and it says
- * so everywhere it is shown. It assembles dated cash events from records that
- * already exist — outstanding receivables, payables, recurring expense schedules
- * and known commitments — and walks the opening bank balance forward through them.
+ * It assembles dated cash events from records that already exist — outstanding
+ * receivables, payables, recurring expense schedules and known commitments — and
+ * walks the opening bank balance forward through them.
+ *
+ * When the company's own transaction history is rich enough, collection and
+ * payment timing is LEARNED from it (see mlForecast.ts) and the scenarios become
+ * simulated probability bands. Otherwise — too little history, or a backtest
+ * showing the rules were more accurate — it falls back to the documented
+ * RULE-BASED assumptions below, and says so on the page.
  *
  * Nothing is invented. A receivable with no due date cannot be placed on a day, so
  * it is excluded from the projection and reported separately as unscheduled, which
@@ -22,7 +28,7 @@ export type Scenario = 'best' | 'expected' | 'worst';
 
 export interface ForecastDriver {
   date: string;
-  kind: 'receivable' | 'payable' | 'recurring_expense' | 'commitment';
+  kind: 'receivable' | 'payable' | 'recurring_expense' | 'commitment' | 'projected_sales' | 'projected_purchases' | 'projected_costs';
   label: string;
   reference: string | null;
   direction: 'inflow' | 'outflow';
@@ -91,7 +97,11 @@ export interface ForecastResult {
     };
   };
   assumptions: string[];
-  method: 'rule_based';
+  method: 'rule_based' | 'survival_monte_carlo';
+  /** Present when the learned model produced this forecast. */
+  learning: LearningSummary | null;
+  /** Why the fixed rules were used instead of the learned model, when they were. */
+  learningUnavailableReason: string | null;
   appliedAdjustments: ScenarioAdjustment[];
 }
 
@@ -180,11 +190,48 @@ export async function computeForecast(
     }
   }
 
+  // ---- learned model, when the history supports it ----
+  // A failure here must never take the forecast down: the rules below always work.
+  let ml: MlOutcome;
+  try {
+    const baseDrivers = buildDrivers({
+      scenario: 'expected',
+      asOfDate,
+      horizonEnd,
+      receivables: [],
+      payables,
+      recurring,
+      commitments,
+      adjustments,
+      payableFingerprints,
+    });
+    ml = await runMlForecast({
+      companyId,
+      asOfDate,
+      horizonDays,
+      openingCash,
+      threshold: minCashThreshold,
+      receivables,
+      payables,
+      recurring,
+      commitments,
+      baseDrivers,
+      adjustments,
+    });
+  } catch (err) {
+    ml = { ready: false, reason: `The learned model could not run (${err instanceof Error ? err.message : 'unknown error'}), so the fixed rules are used.` };
+  }
+
   // ---- build the scenarios ----
   const scenarios = {} as ForecastResult['scenarios'];
   let expectedDrivers: ForecastDriver[] = [];
 
-  for (const scenario of ['best', 'expected', 'worst'] as Scenario[]) {
+  if (ml.ready) {
+    Object.assign(scenarios, ml.scenarios);
+    expectedDrivers = ml.drivers;
+  }
+
+  for (const scenario of (ml.ready ? [] : ['best', 'expected', 'worst']) as Scenario[]) {
     const drivers = buildDrivers({
       scenario,
       asOfDate,
@@ -277,15 +324,36 @@ export async function computeForecast(
   const level: ForecastResult['dataSufficiency']['level'] =
     score >= 80 ? 'good' : score >= 60 ? 'reasonable' : score >= 40 ? 'limited' : 'insufficient';
 
-  const assumptions = [
-    'This is a rule-based projection built from records already imported. It is not a statistical or machine-learned prediction, and it carries no forecast accuracy guarantee.',
-    `Expected case: ${SCENARIO_RULES.expected.description}`,
-    `Best case: ${SCENARIO_RULES.best.description}`,
-    `Worst case: ${SCENARIO_RULES.worst.description}`,
-    'Payables and recurring expenses are reconciled against each other so a scheduled instalment that already exists as an outstanding bill is not counted twice.',
-    'Documents without a due date cannot be placed on a day and are excluded from the projection. Their totals are reported separately.',
-    'No seasonality adjustment is applied. Doing so needs several years of history, which rule-based forecasting from a single import cannot supply.',
-  ];
+  const assumptions = ml.ready
+    ? [
+        `This projection uses a model learned from your own books: ${ml.learning.receivables.settledInvoicesLearned} paid invoices show how long each customer really takes to pay (survival analysis, blended towards the company average for customers with little history), and ${ml.learning.simulations} simulated futures give the ranges.`,
+        'Expected case is the median (P50) of the simulated cash balance; Best case is P90 and Worst case is P10. They are probability bands, not fixed assumptions: 8 in 10 simulated futures fall between Worst and Best.',
+        ml.learning.validation.detail,
+        ml.learning.payables.learned
+          ? `Supplier payment dates are learned from ${ml.learning.payables.settledBillsLearned} past payments.`
+          : 'Too few supplier payments to learn timing, so bills are placed on their due dates.',
+        ...(ml.learning.variableExpenses.length
+          ? [`Variable costs (${ml.learning.variableExpenses.map((v) => v.name).join(', ')}) are forecast by exponential smoothing of past months, with their month-to-month spread included in the bands.`]
+          : []),
+        'Known commitments are included; uncertain inflows are weighted by their recorded confidence (high 90%, medium 70%, low 40%).',
+        'Payables and recurring expenses are reconciled against each other so a scheduled instalment that already exists as an outstanding bill is not counted twice.',
+        ml.learning.projections.length
+          ? `Sales, supplier bills and other running costs not yet recorded are projected from their recent monthly run-rate (${ml.learning.projections.map((p) => p.label).join('; ')}). These are statistical estimates, shown as separate lines marked "projected", and their cash timing follows how past documents were settled.`
+          : 'Sales and costs not yet recorded are not projected: there are fewer than 4 complete months of history to estimate a run-rate from.',
+        'Statutory payments such as GST, TDS and advance tax are included only if you have added them as recurring expenses or commitments.',
+        'No seasonality is modelled; that needs several years of history.',
+        'The bands describe payment-timing uncertainty in the fitted history. They cannot foresee a customer failing or a one-off event, and a short history makes them less reliable.',
+      ]
+    : [
+        'This is a rule-based projection built from records already imported. It is not a statistical or machine-learned prediction, and it carries no forecast accuracy guarantee.',
+        `Why the learned model is not used: ${ml.reason}`,
+        `Expected case: ${SCENARIO_RULES.expected.description}`,
+        `Best case: ${SCENARIO_RULES.best.description}`,
+        `Worst case: ${SCENARIO_RULES.worst.description}`,
+        'Payables and recurring expenses are reconciled against each other so a scheduled instalment that already exists as an outstanding bill is not counted twice.',
+        'Documents without a due date cannot be placed on a day and are excluded from the projection. Their totals are reported separately.',
+        'No seasonality adjustment is applied. Doing so needs several years of history, which rule-based forecasting from a single import cannot supply.',
+      ];
 
   return {
     asOfDate,
@@ -298,7 +366,9 @@ export async function computeForecast(
     shortfallExplanation,
     dataSufficiency: { score, level, signals, unscheduled },
     assumptions,
-    method: 'rule_based',
+    method: ml.ready ? 'survival_monte_carlo' : 'rule_based',
+    learning: ml.ready ? ml.learning : null,
+    learningUnavailableReason: ml.ready ? null : ml.reason,
     appliedAdjustments: adjustments,
   };
 }

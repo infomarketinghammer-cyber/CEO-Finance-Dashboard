@@ -75,6 +75,24 @@ interface ForecastResponse {
   };
   assumptions: string[];
   method: string;
+  learning: LearningInfo | null;
+  learningUnavailableReason: string | null;
+}
+
+interface LearningInfo {
+  simulations: number;
+  receivables: { settledInvoicesLearned: number; customersWithOwnHistory: number; medianDaysToPay: number | null; modelledInvoices: number };
+  payables: { learned: boolean; settledBillsLearned: number; medianDaysToPay: number | null };
+  variableExpenses: { name: string; monthlyForecast: number; spread: number; months: number }[];
+  projections: { label: string; direction: 'inflow' | 'outflow'; monthlyForecast: number; spread: number; model: 'ses' | 'holt'; months: number }[];
+  shortfallProbability: number | null;
+  validation: {
+    verdict: string;
+    detail: string;
+    mlMeanErrorPct: number | null;
+    ruleMeanErrorPct: number | null;
+    windows: { cutoff: string; actualCollected: number; mlPredicted: number; rulePredicted: number; mlErrorPct: number | null; ruleErrorPct: number | null }[];
+  };
 }
 
 interface Adjustment {
@@ -196,7 +214,11 @@ export function ForecastPage() {
     <>
       <PageHeader
         title="Cash Flow Forecast"
-        description="A rule-based projection assembled from outstanding invoices, bills, recurring expenses and known commitments."
+        description={
+          active.learning
+            ? 'A projection that learns from your own payment history, with probability bands from thousands of simulated futures.'
+            : 'A rule-based projection assembled from outstanding invoices, bills, recurring expenses and known commitments.'
+        }
         actions={
           <>
             <Select value={String(horizon)} onChange={(e) => setHorizon(Number(e.target.value))} className="w-32">
@@ -221,11 +243,26 @@ export function ForecastPage() {
       />
 
       {/* --------------------------------------------------- honesty banner */}
-      <Callout tone="info" title="This is a rule-based projection, not a prediction" className="mb-4">
-        It walks your opening cash balance forward through dated events that already exist in your imported data. There is no machine
-        learning here and no accuracy guarantee — the scenarios apply documented collection assumptions, which are listed at the bottom of
-        this page.
-      </Callout>
+      {active.learning ? (
+        <Callout tone="info" title="Learned from your own books — a statistical estimate, not a guarantee" className="mb-4">
+          How long each customer really takes to pay is learned from {formatNumber(active.learning.receivables.settledInvoicesLearned)} past
+          payments, then {formatNumber(active.learning.simulations)} futures are simulated. <strong>Expected</strong> is the middle outcome;{' '}
+          <strong>Best</strong> and <strong>Worst</strong> bound the likely range (8 in 10 outcomes fall between them).
+          {active.learning.shortfallProbability !== null && (
+            <>
+              {' '}
+              Chance of running short of cash during this period: <strong>{active.learning.shortfallProbability}%</strong>.
+            </>
+          )}{' '}
+          It cannot foresee a customer failing or a one-off event.
+        </Callout>
+      ) : (
+        <Callout tone="info" title="This is a rule-based projection, not a prediction" className="mb-4">
+          It walks your opening cash balance forward through dated events that already exist in your imported data, applying documented
+          collection assumptions (listed under Assumptions).{' '}
+          {active.learningUnavailableReason && <>The learned model is not used because: {active.learningUnavailableReason}</>}
+        </Callout>
+      )}
 
       {!baseline.openingCashAvailable && (
         <Callout tone="danger" title="No cash or bank ledger is mapped" className="mb-4">
@@ -249,12 +286,14 @@ export function ForecastPage() {
         {(['best', 'expected', 'worst'] as const).map((s) => {
           const sc = active.scenarios[s];
           const label = s === 'best' ? 'Best case' : s === 'expected' ? 'Expected case' : 'Worst case';
+          const band = active.learning ? (s === 'best' ? 'P90 · 1 in 10 is better' : s === 'expected' ? 'P50 · middle outcome' : 'P10 · 1 in 10 is worse') : null;
           return (
             <Card key={s} className={cx('p-4', s === 'expected' && 'border-brand-200')}>
               <div className="flex items-center justify-between gap-2">
                 <p className="label-text">{label}</p>
                 {sc.shortfallDate && <Badge tone="danger">Shortfall</Badge>}
               </div>
+              {band && <p className="text-2xs text-ink-subtle">{band}</p>}
               <p className={cx('text-lg font-semibold tabular mt-1', sc.closingBalance < 0 ? 'text-danger' : 'text-ink')}>
                 {formatMoney(sc.closingBalance, currency)}
               </p>
@@ -410,6 +449,64 @@ export function ForecastPage() {
               </>
             )}
           </Card>
+
+          {active.learning && (
+            <Card>
+              <CardHeader title="What the model learned" description="From your imported transactions." />
+              <div className="p-5 space-y-3 text-xs text-ink-muted leading-relaxed">
+                <p>
+                  Customers typically pay about{' '}
+                  <strong className="text-ink">
+                    {active.learning.receivables.medianDaysToPay !== null ? `${active.learning.receivables.medianDaysToPay} days` : 'an unknown number of days'}
+                  </strong>{' '}
+                  after invoicing. {formatNumber(active.learning.receivables.customersWithOwnHistory)} customer(s) have their own history; others use the
+                  company average.
+                </p>
+                {active.learning.projections.length > 0 && (
+                  <div>
+                    <p className="label-text mb-1">Projected, not yet recorded (per month)</p>
+                    <ul className="space-y-1">
+                      {active.learning.projections.map((p) => (
+                        <li key={p.label} className="flex justify-between gap-2">
+                          <span className="truncate">{p.label}</span>
+                          <span className={cx('tabular shrink-0', p.direction === 'inflow' ? 'text-positive' : 'text-ink')}>
+                            {formatMoney(p.monthlyForecast, currency)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <div className="pt-3 border-t border-line">
+                  <p className="label-text mb-1">Tested against what really happened</p>
+                  <p>{active.learning.validation.detail}</p>
+                  {active.learning.validation.windows.length > 0 && (
+                    <table className="w-full mt-2 text-2xs">
+                      <thead>
+                        <tr className="text-left text-ink-subtle">
+                          <th className="font-medium py-1">From</th>
+                          <th className="font-medium text-right">Actual</th>
+                          <th className="font-medium text-right">Model</th>
+                          <th className="font-medium text-right">Rules</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {active.learning.validation.windows.map((w) => (
+                          <tr key={w.cutoff} className="border-t border-line/60 tabular">
+                            <td className="py-1">{formatDate(w.cutoff)}</td>
+                            <td className="text-right">{formatMoney(w.actualCollected, currency)}</td>
+                            <td className="text-right">{formatMoney(w.mlPredicted, currency)}</td>
+                            <td className="text-right">{formatMoney(w.rulePredicted, currency)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                  <p className="mt-2 text-2xs text-ink-subtle">Collections in the 30 days after each date, predicted versus actual.</p>
+                </div>
+              </div>
+            </Card>
+          )}
 
           <Card>
             <CardHeader title="How reliable is this?" description="Based on which inputs are actually present." />
