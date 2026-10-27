@@ -36,6 +36,7 @@ import {
 } from '@/components/ui';
 import { Explainer, PageHeader } from '@/components/financial';
 import { cx, formatDateTime, formatFileSize, formatNumber } from '@/lib/format';
+import { BulkImport } from './BulkImport';
 
 /* --------------------------------------------------------------------- types */
 
@@ -164,7 +165,7 @@ export function ImportPage() {
   const [params, setParams] = useSearchParams();
   const toasts = useToasts();
 
-  const [tab, setTab] = useState(params.get('tab') ?? 'wizard');
+  const [tab, setTab] = useState(params.get('tab') ?? 'bulk');
   const [categories, setCategories] = useState<ImportCategory[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
@@ -340,18 +341,24 @@ export function ImportPage() {
 
       <Tabs
         tabs={[
-          { key: 'wizard', label: 'New import' },
+          { key: 'bulk', label: 'Bulk upload' },
+          { key: 'wizard', label: 'New import (step by step)' },
           { key: 'history', label: 'Import history' },
           { key: 'templates', label: 'Templates' },
         ]}
         active={tab}
         onChange={(k) => {
           setTab(k);
-          setParams(k === 'wizard' ? {} : { tab: k });
+          setParams(k === 'bulk' ? {} : { tab: k });
         }}
         className="mb-5"
       />
 
+      {tab === 'bulk' && (can('imports.create') ? <BulkImport /> : (
+        <Callout tone="info" title="You have read-only access to imports">
+          Your role can review import history but cannot upload new data.
+        </Callout>
+      ))}
       {tab === 'history' && <ImportHistory />}
       {tab === 'templates' && <TemplateList categories={categories} loading={loadingCategories} />}
 

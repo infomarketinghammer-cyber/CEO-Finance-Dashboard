@@ -33,6 +33,26 @@ async function main() {
       console.log('Seed complete.');
       break;
     }
+    case 'reset-admin': {
+      // Recovery: (re)sets the administrator from BOOTSTRAP_ADMIN_EMAIL / _PASSWORD.
+      const email = (process.env.BOOTSTRAP_ADMIN_EMAIL ?? '').toLowerCase().trim();
+      const password = process.env.BOOTSTRAP_ADMIN_PASSWORD ?? '';
+      if (!email || password.length < 8) {
+        throw new Error('Set BOOTSTRAP_ADMIN_EMAIL and a BOOTSTRAP_ADMIN_PASSWORD of at least 8 characters.');
+      }
+      const { default: bcrypt } = await import('bcryptjs');
+      const { newId, nowIso } = await import('../lib/ids.js');
+      const hash = await bcrypt.hash(password, 12);
+      const now = nowIso();
+      const existing = await db('users').where({ email }).first();
+      if (existing) {
+        await db('users').where({ id: existing.id }).update({ password_hash: hash, role: 'admin', is_active: true, must_change_password: false, updated_at: now });
+      } else {
+        await db('users').insert({ id: newId(), email, name: 'System Administrator', password_hash: hash, role: 'admin', is_active: true, must_change_password: false, created_at: now, updated_at: now });
+      }
+      console.log(`Administrator ${email} is ready. Remove RESET_ADMIN from the environment now.`);
+      break;
+    }
     case 'status': {
       const current = await db.migrate.currentVersion();
       console.log(`Current migration version: ${current}`);

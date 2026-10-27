@@ -54,4 +54,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
 
 # Migrate (idempotent), seed (idempotent: creates categories and the first admin
 # only if absent), then start. exec keeps node as PID 1 so SIGTERM drains cleanly.
-CMD ["sh", "-c", "node dist/db/cli.js migrate && node dist/db/cli.js seed && exec node dist/index.js"]
+# Set RESET_ADMIN=true for one deploy to reset the admin login from the env vars.
+CMD ["sh", "-c", "node dist/db/cli.js migrate && node dist/db/cli.js seed && if [ \"$RESET_ADMIN\" = \"true\" ]; then node dist/db/cli.js reset-admin; fi && exec node dist/index.js"]
